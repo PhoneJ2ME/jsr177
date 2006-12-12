@@ -1,5 +1,5 @@
 /*
- *   
+ * @(#)ACSlot.java	1.12 06/04/05 @(#)
  *
  * Copyright  1990-2006 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
@@ -30,12 +30,11 @@ import java.util.Vector;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import com.sun.satsa.acl.ACList;
 import com.sun.midp.io.j2me.storage.RandomAccessStream;
 import com.sun.midp.io.j2me.storage.File;
-import com.sun.midp.security.ImplicitlyTrustedClass;
-import com.sun.midp.security.SecurityToken;
-import com.sun.satsa.security.SecurityInitializer;
-import com.sun.midp.configurator.Constants;
+import com.sun.midp.security.*;
 
 import javax.microedition.io.Connector;
 
@@ -43,25 +42,29 @@ import javax.microedition.io.Connector;
  * This class represents access control file that describes permissions for one
  * card slot.
  */
-public class ACSlot{
+public class ACSlot implements ImplicitlyTrustedClass {
 
-    /**
-     * Inner class to request security token from SecurityInitializer.
-     * SecurityInitializer should be able to check this inner class name.
-     */
-    static private class SecurityTrusted
-        implements ImplicitlyTrustedClass {};
-
-    /** This class has a different security domain than the MIDlet suite */
-    private static SecurityToken classSecurityToken =
-        SecurityInitializer.requestToken(new SecurityTrusted());
-
+    /** This class has a different security domain than the MIDlet suite. */
+    private static SecurityToken classSecurityToken;
     /**
      * Constructs an instance of an access control file object.
      */
     public ACSlot() {
     }
  
+    /**
+     * Initializes the security token for this class, so it can
+     * perform actions that a normal MIDlet Suite cannot.
+     *
+     * @param token security token for this class.
+     */
+    public void initSecurityToken(SecurityToken token) {
+        if (classSecurityToken != null) {
+            return;
+        }
+        classSecurityToken = token;
+    }
+
     /**
      * Load access control information.
      * @param slotNum card slot number.
@@ -75,8 +78,8 @@ public class ACSlot{
 
         try {
             storage = new RandomAccessStream(classSecurityToken);
-            storage.connect(File.getStorageRoot(Constants.INTERNAL_STORAGE_ID) +
-	        "acl_" + slotNum, Connector.READ);
+            storage.connect(File.getStorageRoot() + "acl_" + slotNum,
+                            Connector.READ);
             permIS = storage.openInputStream();
         } catch (IOException e) {
             return null;

@@ -1,5 +1,5 @@
 /*
- *   
+ * @(#)Protocol.java	1.1 06/04/25 @(#)
  *
  * Copyright  1990-2006 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
@@ -28,17 +28,14 @@ package com.sun.midp.io.j2me.apdu;
 
 import javax.microedition.io.*;
 import javax.microedition.apdu.*;
+import com.sun.midp.security.*;
 import com.sun.midp.midlet.*;
 import com.sun.midp.midletsuite.*;
-import com.sun.midp.security.SecurityToken;
-import com.sun.midp.security.ImplicitlyTrustedClass;
-import com.sun.midp.security.Permissions;
 import com.sun.cldc.io.ConnectionBaseInterface;
 import com.sun.satsa.acl.ACLPermissions;
 import com.sun.satsa.acl.AccessControlManager;
 import com.sun.satsa.acl.APDUPermissions;
 import com.sun.satsa.util.Utils;
-import com.sun.satsa.security.SecurityInitializer;
 
 import java.io.*;
 
@@ -55,18 +52,10 @@ import java.io.*;
  *
  */
 public class Protocol implements APDUConnection, ConnectionBaseInterface,
-                                 StreamConnection {
+                                 StreamConnection, ImplicitlyTrustedClass {
 
-    /**
-     * Inner class to request security token from SecurityInitializer.
-     * SecurityInitializer should be able to check this inner class name.
-     */
-    static private class SecurityTrusted
-        implements ImplicitlyTrustedClass {};
-
-    /** This class has a different security domain than the MIDlet suite */
-    private static SecurityToken classSecurityToken =
-        SecurityInitializer.requestToken(new SecurityTrusted());
+    /** This class has a different security domain than the MIDlet suite. */
+    private static SecurityToken classSecurityToken;
 
     /**
      * This object verifies access rights of the MIDlet.
@@ -83,6 +72,18 @@ public class Protocol implements APDUConnection, ConnectionBaseInterface,
      * Connection handle.
      */
     private Handle h;
+
+    /**
+     * Initializes the security token for this class, so it can
+     * perform actions that a normal MIDlet Suite cannot.
+     *
+     * @param token security token for this class.
+     */
+    public void initSecurityToken(SecurityToken token) {
+        if (classSecurityToken == null) {
+            classSecurityToken = token;
+        }
+    }
 
     /**
      * Opens a connection.

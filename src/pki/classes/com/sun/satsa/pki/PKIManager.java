@@ -1,5 +1,5 @@
 /*
- *   
+ * @(#)PKIManager.java	1.30 06/05/10 @(#)
  *
  * Copyright  1990-2006 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
@@ -32,11 +32,9 @@ import com.sun.midp.io.j2me.apdu.APDUManager;
 import com.sun.midp.i18n.Resource;
 import com.sun.midp.i18n.ResourceConstants;
 import com.sun.midp.midlet.MIDletStateHandler;
+import com.sun.midp.security.*;
 import com.sun.midp.main.Configuration;
-import com.sun.midp.configurator.Constants;
-import com.sun.midp.security.ImplicitlyTrustedClass;
-import com.sun.midp.security.SecurityToken;
-import com.sun.satsa.security.SecurityInitializer;
+
 import com.sun.satsa.util.*;
 
 import javax.microedition.io.Connector;
@@ -47,7 +45,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
-import com.sun.midp.security.Permissions;
 
 /**
  * This class provides implementation of methods defined by
@@ -55,7 +52,7 @@ import com.sun.midp.security.Permissions;
  * javax.microedition.securityservice.CMSMessageSignatureService
  * classes.
  */
-public class PKIManager {
+public class PKIManager implements ImplicitlyTrustedClass {
 
     /** Signature operation identifier. */
     public static final int AUTHENTICATE_DATA      = 0;
@@ -65,15 +62,9 @@ public class PKIManager {
     public static final int SIGN_STRING            = 2;
 
     /**
-     * Inner class to request security token from SecurityInitializer.
-     * SecurityInitializer should be able to check this inner class name.
-     */
-    static private class SecurityTrusted
-        implements ImplicitlyTrustedClass {};
-
-    /** This class has a different security domain than the MIDlet suite */
-    private static SecurityToken classSecurityToken =
-        SecurityInitializer.requestToken(new SecurityTrusted());
+     * This class has a different security domain than the MIDlet
+     * suite. */
+    private static SecurityToken classSecurityToken;
 
     /**
      * Storage name for identifiers of public keys for which
@@ -85,6 +76,18 @@ public class PKIManager {
      * expected if this information is not stored in persistent storage.
      */
     private static Vector tmpCSRList;
+
+    /**
+     * Initializes the security token for this class, so it can
+     * perform actions that a normal MIDlet Suite cannot.
+     * @param token security token for this class.
+     */
+    public void initSecurityToken(SecurityToken token) {
+        if (classSecurityToken != null) {
+            return;
+        }
+        classSecurityToken = token;
+    }
 
     /**
      * Creates a DER encoded PKCS#10 certificate enrollment request.
@@ -414,7 +417,7 @@ public class PKIManager {
         if (action == AUTHENTICATE_DATA ?
             (data == null || data.length == 0) :
             (string == null || string.length() == 0)) {
-            // IMPL_NOTE: specification ?
+            // IMPL_NOTE: - specification ?
             throw new IllegalArgumentException("Invalid data");
         }
 
@@ -504,8 +507,7 @@ public class PKIManager {
 
         Vector CSRs = new Vector();
 
-    	String storeName = File.getStorageRoot(
-	    Constants.INTERNAL_STORAGE_ID) + CSR_ID_FILE;
+    	String storeName = File.getStorageRoot() + CSR_ID_FILE;
     	RandomAccessStream storage =
                 new RandomAccessStream(classSecurityToken);
         DataInputStream dis;
@@ -558,8 +560,7 @@ public class PKIManager {
             return;
         }
 
-        String storeName = File.getStorageRoot(
-	    Constants.INTERNAL_STORAGE_ID) + CSR_ID_FILE;
+        String storeName = File.getStorageRoot() + CSR_ID_FILE;
         RandomAccessStream storage =
                 new RandomAccessStream(classSecurityToken);
         DataOutputStream dos;
