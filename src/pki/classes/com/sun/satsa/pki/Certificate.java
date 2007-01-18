@@ -30,8 +30,8 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import com.sun.satsa.util.*;
 
-import com.sun.midp.i18n.Resource;
-import com.sun.midp.i18n.ResourceConstants;
+import com.sun.j2me.i18n.Resource;
+import com.sun.j2me.i18n.ResourceConstants;
 
 /**
  * This class represents WIM certificate.
@@ -150,15 +150,11 @@ class Certificate {
     static Calendar getValidity(TLV cert, boolean notBefore)
             throws TLVException {
 
-        try {
-            TLV t = cert.child.child.skipOptional(0xa0).next.next.next.child;
-            if (! notBefore) {
-                t = t.next;
-            }
-            return t.getTime();
-        } catch (NullPointerException npe) {
-            throw new TLVException("Invalid certificate");
+        TLV t = cert.child.child.skipOptional(0xa0).next.next.next.child;
+        if (! notBefore) {
+            t = t.next;
         }
+        return t.getTime();
     }
 
     /**
@@ -214,7 +210,6 @@ class Certificate {
                 Utils.calendarToString(getValidity(cert, false));
         } catch (TLVException tlve) { // ignored
         } catch (IllegalArgumentException iae) { // ignored
-        } catch (NullPointerException npe) { // ignored
         }
         return null;
     }

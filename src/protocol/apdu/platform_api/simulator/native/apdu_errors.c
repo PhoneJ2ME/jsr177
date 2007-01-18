@@ -102,19 +102,11 @@ static void add_error_msg(const char *err_class, const char *fmt, va_list ap) {
 	if (bytes_left <= 0) 
 		return;
 
-	len = snprintf(err_line_top, bytes_left, "%s: ", err_class);
-    if (len < 0) {
-        return;
-    }
-	err_line_top += len;
+	err_line_top += (len=snprintf(err_line_top, bytes_left, "%s: ", err_class));
 	*err_line_top = '\0';
 	bytes_left -= len;
 	
-	len = vsnprintf(err_line_top, bytes_left, fmt, ap);
-    if (len < 0) {
-        return;
-    }
-	err_line_top += len;
+	err_line_top += vsnprintf(err_line_top, bytes_left, fmt, ap);
 	*err_line_top = '\0';
 	
 	err_line_top++;
