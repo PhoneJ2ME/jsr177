@@ -26,11 +26,10 @@
 
 package com.sun.satsa.util;
 
-import com.sun.midp.crypto.GeneralSecurityException;
-import com.sun.midp.crypto.MessageDigest;
-
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 
 import java.util.*;
 import java.io.PrintStream;
@@ -43,7 +42,7 @@ import java.io.PrintStream;
 public class Utils {
 
     /** UTF-8 encoding name. */
-    public static final String utf8 = "UTF_8";
+    public static final String utf8 = "UTF-8";
 
     /** Hexadecimal digits. */
     private static char[] hc = {

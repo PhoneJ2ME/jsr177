@@ -29,7 +29,6 @@ package com.sun.satsa.util;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
-import java.util.TimeZone;
 
 /**
  * Used to represent each Type, Length, Value structure in a DER buffer.
@@ -555,7 +554,7 @@ public class TLV {
             throw new TLVException("invalid type - getType");
         }
 
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar c = Calendar.getInstance();
 
         int offset;
         int year;
