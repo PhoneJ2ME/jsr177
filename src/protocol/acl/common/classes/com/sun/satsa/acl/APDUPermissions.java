@@ -49,9 +49,6 @@ public class APDUPermissions extends ACLPermissions {
         if (type == ALLOW) {
             return;
         }
-        if (type == DISALLOW) {
-            throw new SecurityException("Access denied");
-        }
 
         for (int i = 0; i < permissions.size(); i++) {
 

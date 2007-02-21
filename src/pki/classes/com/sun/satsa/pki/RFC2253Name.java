@@ -43,15 +43,6 @@ public class RFC2253Name {
     private static final String specialChars2253 = ",+\"\\<>;=";
 
     /**
-     * DomainComponent type OID.
-     */
-    private static final byte[] dcOID = {
-        9, (byte) 0x92, (byte) 0x26, (byte) 0x89, (byte) 0x93,
-        (byte) 0xF2, (byte) 0x2C, (byte) 0x64, (byte) 0x01,
-        (byte) 0x19
-    };
-    
-    /**
      * Component type names.
      */
     private static String[] names = {
@@ -76,7 +67,9 @@ public class RFC2253Name {
         {85, 4, 9},
         {85, 4, 10},
         {85, 4, 11},
-        dcOID,
+        {9, (byte) 0x92, (byte) 0x26, (byte) 0x89, (byte) 0x93,
+         (byte) 0xF2, (byte) 0x2C, (byte) 0x64, (byte) 0x01,
+         (byte) 0x19},
         {9, (byte) 0x92, (byte) 0x26, (byte) 0x89, (byte) 0x93,
          (byte) 0xF2, (byte) 0x2C, (byte) 0x64, (byte) 0x01,
          (byte) 0x01}};
@@ -115,8 +108,6 @@ public class RFC2253Name {
             return new RFC2253Name(name).encode().getDERData();
         } catch (TLVException tlve) {
             throw new IllegalArgumentException(name);
-        } catch (StringIndexOutOfBoundsException siobe) {
-            throw new IllegalArgumentException(name);
         } catch (IllegalArgumentException iae) {
             throw new IllegalArgumentException(name);
         }
@@ -133,8 +124,6 @@ public class RFC2253Name {
         try {
             return new RFC2253Name(name).encode();
         } catch (TLVException e) {
-            throw new IllegalArgumentException(name);
-        } catch (StringIndexOutOfBoundsException siobe) {
             throw new IllegalArgumentException(name);
         } catch (IllegalArgumentException iae) {
             throw new IllegalArgumentException(name);
@@ -209,13 +198,7 @@ public class RFC2253Name {
                 }
 
             } else {
-                byte[] typeOID = type.getValue();
-                if (Utils.byteMatch(dcOID, 0, dcOID.length, 
-                                    typeOID, 0, typeOID.length)) {
-                    value = TLV.createIA5String(s);
-                } else {
-                    value = TLV.createUTF8String(s);
-                }
+                value = TLV.createUTF8String(s);
             }
 
             TLV tv = TLV.createSequence();

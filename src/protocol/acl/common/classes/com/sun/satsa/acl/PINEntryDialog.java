@@ -40,7 +40,7 @@ import javax.microedition.lcdui.*;
 
 
 /** Implements PIN entry dialog. */
-public class PINEntryDialog implements CommandListener {
+public class PINEntryDialog implements CommandListener, MIDletEventConsumer {
 
     /** Answer that indicates that the dialog was cancelled. */
     private static final int CANCELLED = -1;
@@ -173,7 +173,7 @@ public class PINEntryDialog implements CommandListener {
 	    displayEventHandler = DisplayEventHandlerFactory
 		.getDisplayEventHandler(token);
 	}
-        preemptToken = displayEventHandler.preemptDisplay(form, true);
+        preemptToken = displayEventHandler.preemptDisplay(this, form, true);
     }
 
     /**
@@ -254,6 +254,43 @@ public class PINEntryDialog implements CommandListener {
             data2 = null;
         }
         return true;
+    }
+
+    /**
+     * Start the currently suspended state. This is not apply to
+     * this dialog.
+     *
+     * @param midlet midlet that the event applies to
+     */
+    public void startMIDlet(MIDletPeer midlet) {}
+
+    /**
+     * Pause the current foreground MIDlet and return to the
+     * AMS or "selector" to possibly run another MIDlet in the
+     * currently active suite.
+     * <p>
+     * This is not apply to this dialog.
+     *
+     * MIDletEventConsumer I/F method.
+     */
+    public void handleMIDletPauseEvent() {}
+
+    /**
+     * Destroy the MIDlet given midlet.
+     * <p>
+     * This is not apply to this dialog.
+     *
+     * MIDletEventConsumer I/F method.
+     */
+    public void handleMIDletDestroyEvent() {}
+
+    /**
+     * Activate a MIDlet.
+     *
+     * MIDletEventConsumer I/F method.
+     */
+    public void handleMIDletActivateEvent() {
+	/* RFC - not needed for Dialog interaction. */
     }
 
     /**
