@@ -105,8 +105,6 @@ public class PKIApplet extends Applet {
     Cipher cipher;
     /** MessageDigest object for key hash calculation. */
     MessageDigest digest;
-    /** Number of unused keys. */
-    static short unusedKeys = 0;
 
     /** Constructor. */
     PKIApplet() {
@@ -197,7 +195,7 @@ public class PKIApplet extends Applet {
             } else { 
                 // This key is not supported by card
                 byte[] files = Data.Files;
-                short tail = (short)(cnt + Data.freeKeySlots - keyPos - 1);
+                short tail = (short)(cnt - keyPos - 1);
                 if (tail > 0) {
                     // Shift up private keys
                     short privOffset = 
@@ -206,7 +204,7 @@ public class PKIApplet extends Applet {
                     Util.arrayCopyNonAtomic(files, 
                             (short)(privOffset + Data.privKeyRecordSize), 
                             files, privOffset, 
-                            (short)(Data.privKeyRecordSize * tail)); 
+                            (short)(Data.privKeyRecordSize * (tail + 1))); 
                     privOffset = 
                         (short)((privKeyStart + 
                                     Data.privKeyRecordSize * (keyPos + tail)));
@@ -218,11 +216,12 @@ public class PKIApplet extends Applet {
                     Util.arrayCopyNonAtomic(files, 
                             (short)(pubOffset + Data.pubKeyRecordSize), 
                              files, pubOffset, 
-                             (short)(Data.pubKeyRecordSize * tail));
+                             (short)(Data.pubKeyRecordSize * (tail + 1)));
                     pubOffset = 
                         (short)((pubKeyStart + 
                                     Data.pubKeyRecordSize * (keyPos + tail)));
                 }
+                Data.freeKeySlots++;
             }
         }
         Data.newPrivKeyOffset = (short)(privKeyStart - 
@@ -230,7 +229,6 @@ public class PKIApplet extends Applet {
         Data.newPubKeyOffset = (short)(pubKeyStart - 
                 Data.PuKDFOffset + keyPos * Data.pubKeyRecordSize);
 
-        unusedKeys = (short)(keys.length - Data.freeKeySlots - keyPos);
         Parser.init(Data.Files);
         top = (DFile) readFile(null);
 
@@ -582,7 +580,7 @@ public class PKIApplet extends Applet {
                     }
 
                     for (short i = 0;
-                         i < (short)(keys.length - Data.freeKeySlots - unusedKeys); i++) {
+                         i < (short)(keys.length - Data.freeKeySlots); i++) {
 
                         if (data[index] == keys[i].id) {
                             keyNum = i;
@@ -658,7 +656,7 @@ public class PKIApplet extends Applet {
 
 /*
  * IMPL_NOTE: For testing purposes return existing key instead of new one
-        for (short i = 0; i < (short)(keys.length - Data.freeKeySlots - unusedKeys); i++) {
+        for (short i = 0; i < (short)(keys.length - Data.freeKeySlots); i++) {
             if (keys[i].keyLen == keyLen 
                     && keys[i].nonRepudiation == nonRepudiation) {
                 data[0] = (byte)keys[i].id;
@@ -744,7 +742,7 @@ public class PKIApplet extends Applet {
                 Data.newPINOffset += Data.PINRecordSize;
             }
 
-            keys[(short) (keys.length - Data.freeKeySlots - unusedKeys)] = key;
+            keys[(short) (keys.length - Data.freeKeySlots)] = key;
             Data.freeKeySlots--;
             Data.newFileID += 2;
             Data.newKeyID++;
