@@ -519,6 +519,11 @@ public class PKIManager {
                 dos.writeInt(0);
                 dos.flush();
                 dos.close();
+                dis = new DataInputStream(storage.openInputStream());
+            } catch (IOException openwe) {
+                return CSRs;
+            }
+            try {
                 storage.disconnect();
             } catch (IOException e) {} // ignored
             return CSRs;
@@ -534,8 +539,7 @@ public class PKIManager {
         } catch (IOException e) {} // ignored
         finally {
             try {
-                dis.close();
-                storage.disconnect();                
+                storage.disconnect();
             } catch (IOException e) {} // ignored
         }
         return CSRs;

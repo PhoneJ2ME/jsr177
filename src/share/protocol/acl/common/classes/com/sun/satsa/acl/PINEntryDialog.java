@@ -142,9 +142,10 @@ public class PINEntryDialog {
         }
 
         byte[] data2;
-        if ((pin2 != null) && (data.length == 2)) {
-            data2 = pin2.transform((String)data[1]);
-        } else {
+        if (pin2 != null) {
+            data2 = pin2.transform((data.length == 2) ? (String)data[1] : null);
+        }
+        else {
             data2 = null;
         }
 
